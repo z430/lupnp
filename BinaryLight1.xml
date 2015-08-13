@@ -20,6 +20,13 @@
         <controlURL>/SwitchPower/Control</controlURL>
         <eventSubURL>/SwitchPower/Event</eventSubURL>
       </service>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:Dimming:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:Dimming:1</serviceId>
+        <SCPDURL>/Dimming1.xml</SCPDURL>
+        <controlURL>/Dimming/Control</controlURL>
+        <eventSubURL>/Dimming/Event</eventSubURL>
+      </service>
     </serviceList>
   </device>
 </root>
