@@ -11,7 +11,7 @@
     <manufacturer>OpenedHand</manufacturer>
     <modelName>Virtual Light</modelName>
     <UDN>uuid:cc93d8e6-6b8b-4f60-87ca-228c36b5b0e8</UDN>
-    
+
     <serviceList>
       <service>
         <serviceType>urn:schemas-upnp-org:service:SwitchPower:1</serviceType>
@@ -26,6 +26,13 @@
         <SCPDURL>/Dimming1.xml</SCPDURL>
         <controlURL>/Dimming/Control</controlURL>
         <eventSubURL>/Dimming/Event</eventSubURL>
+      </service>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:ColorChange:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:ColorChange:1</serviceId>
+        <SCPDURL>/ColorChange1.xml</SCPDURL>
+        <controlURL>/ColorChange/Control</controlURL>
+        <eventSubURL>/ColorChange/Event</eventSubURL>
       </service>
     </serviceList>
   </device>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+
+    <actionList>
+        <action>
+            <name>SetColorChangeTarget</name>
+            <argumentList>
+                <argument>
+                    <name>newRedTarget</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>newGreenTarget</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>newBlueTarget</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+    </actionList>
+
+
+    <serviceStateTable>
+        <stateVariable sendEvents="no">
+            <name>ColorChangeTarget</name>
+            <dataType>ui1</dataType>
+            <defaultValue>0</defaultValue>
+            <allowedValueRange>
+                <minimum>0</minimum>
+                <maximum>100</maximum>
+            </allowedValueRange>
+        </stateVariable>
+
+        <stateVariable sendEvents="yes">
+            <name>ColorChangeStatus</name>
+            <dataType>ui1</dataType>
+            <defaultValue>0</defaultValue>
+            <allowedValueRange>
+                <minimum>0</minimum>
+                <maximum>100</maximum>
+            </allowedValueRange>
+        </stateVariable>
+    </serviceStateTable>
+
+</scpd>
+
+
