@@ -15,26 +15,6 @@
         </argument>
       </argumentList>
     </action>
-    <action>
-      <name>GetTarget</name>
-      <argumentList>
-        <argument>
-          <name>RetTargetValue</name>
-          <relatedStateVariable>Target</relatedStateVariable>
-          <direction>out</direction>
-        </argument>
-      </argumentList>
-    </action>
-    <action>
-      <name>GetStatus</name>
-      <argumentList>
-        <argument>
-          <name>ResultStatus</name>
-          <relatedStateVariable>Status</relatedStateVariable>
-          <direction>out</direction>
-        </argument>
-      </argumentList>
-    </action>
   </actionList>
   <serviceStateTable>
     <stateVariable sendEvents="no">
