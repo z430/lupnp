@@ -9,12 +9,6 @@
 
 #include <gmodule.h>
 
-gboolean status;
-guint dimming;
-guint redLevel;
-guint greenLevel;
-guint blueLevel;
-
 void upnpInit();
 
 

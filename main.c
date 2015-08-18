@@ -1,17 +1,14 @@
 #include "UpnpCore.h"
+#include "HardwareHandler.h"
 
 
 int main()
 {
     /**/
     //by default lamp is off
-    status = FALSE;
-    dimming = 0;
-    redLevel = 0;
-    greenLevel = 0;
-    blueLevel = 0;
+    switchStatus = FALSE;
 
-    g_print("Default Status %s.\n", status ? "on" : "off");
+    g_print("Default Status %s.\n", switchStatus ? "on" : "off");
 
     upnpInit();
 
