@@ -5,7 +5,10 @@
 #include "UpnpCore.h"
 #include <libgupnp/gupnp.h>
 
-
+#define DEVICE_DOC "BinaryLight1.xml"
+#define SWITCH_SERVICE "urn:schemas-upnp-org:service:SwitchPower:1"
+#define DIMMING_SERVICE "urn:schemas-upnp-org:service:Dimming:1"
+#define COLOR_SERVICE "urn:schemas-upnp-org:service:ColorChange:1"
 
 G_MODULE_EXPORT
 void set_target_cb(GUPnPService *service, GUPnPServiceAction *action,
@@ -65,19 +68,16 @@ void upnpInit() {
     GUPnPContext *context;
     context = gupnp_context_new(NULL, NULL, 0, NULL);
     GUPnPRootDevice *dev;
-    dev = gupnp_root_device_new(context, "BinaryLight1.xml", ".");
+    dev = gupnp_root_device_new(context, DEVICE_DOC, ".");
     gupnp_root_device_set_available(dev, TRUE);
 
     //define the upnp service
     GUPnPServiceInfo *switchService;
-    switchService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev),
-                                                  "urn:schemas-upnp-org:service:SwitchPower:1");
+    switchService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), SWITCH_SERVICE);
     GUPnPServiceInfo *dimmingService;
-    dimmingService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev),
-                                                   "urn:schemas-upnp-org:service:Dimming:1");
+    dimmingService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), DIMMING_SERVICE);
     GUPnPServiceInfo *colorService;
-    colorService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev),
-                                                 "urn:schemas-upnp-org:service:ColorChange:1");
+    colorService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), COLOR_SERVICE);
 
     g_signal_connect(switchService, "action-invoked::SetTarget", G_CALLBACK(set_target_cb), NULL);
     g_signal_connect(dimmingService, "action-invoked::SetLoadLevelTarget", G_CALLBACK(set_loadlevel_cb), NULL);
