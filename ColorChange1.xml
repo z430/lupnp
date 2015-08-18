@@ -41,7 +41,25 @@
         </stateVariable>
 
         <stateVariable sendEvents="yes">
-            <name>ColorChangeStatus</name>
+            <name>ColorRedStatus</name>
+            <dataType>ui1</dataType>
+            <defaultValue>0</defaultValue>
+            <allowedValueRange>
+                <minimum>0</minimum>
+                <maximum>100</maximum>
+            </allowedValueRange>
+        </stateVariable>
+        <stateVariable sendEvents="yes">
+            <name>ColorGreenStatus</name>
+            <dataType>ui1</dataType>
+            <defaultValue>0</defaultValue>
+            <allowedValueRange>
+                <minimum>0</minimum>
+                <maximum>100</maximum>
+            </allowedValueRange>
+        </stateVariable>
+        <stateVariable sendEvents="yes">
+            <name>ColorBlueStatus</name>
             <dataType>ui1</dataType>
             <defaultValue>0</defaultValue>
             <allowedValueRange>
