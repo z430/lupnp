@@ -10,6 +10,8 @@
 
 bool switchStatus;
 
+int setupWiringPi();
+void hardwareSetup();
 void switchControl(bool setStatus);
 void dimmingControl(int dimValue);
 void colorControl(int redLevel, int greenLevel, int blueLevel);

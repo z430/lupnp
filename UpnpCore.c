@@ -23,6 +23,7 @@ void set_target_cb(GUPnPService *service, GUPnPServiceAction *action,
     gupnp_service_notify(service, "Status", G_TYPE_BOOLEAN, status, NULL);
     g_print("Status : %s.\n", status ? "on" : "off");
     */
+    gupnp_service_notify(service, "Status", G_TYPE_BOOLEAN, target, NULL);
     gupnp_service_action_return(action);
 
 }
@@ -37,8 +38,8 @@ void set_loadlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointe
     /*
     //dimming = loadLevel;
     //g_print("loadLevel : %d.\n", dimming);
-    //gupnp_service_notify(service, "LoadLevelStatus", G_TYPE_UINT, dimming, NULL);
     */
+    gupnp_service_notify(service, "LoadLevelStatus", G_TYPE_UINT, loadLevel, NULL);
     gupnp_service_action_return(action);
 }
 
@@ -60,10 +61,10 @@ void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpoint
     greenLevel = greenLevelChange;
     blueLevel = blueLevelChange;
     g_print("R: %d. G: %d. B: %d.\n", redLevel, greenLevel, blueLevel);
-    gupnp_service_notify(service, "ColorChangeStatus", G_TYPE_UINT, redLevel, NULL);
-    gupnp_service_notify(service, "ColorChangeStatus", G_TYPE_UINT, greenLevel, NULL);
-    gupnp_service_notify(service, "ColorChangeStatus", G_TYPE_UINT, blueLevel, NULL);
     */
+    gupnp_service_notify(service, "ColorRedStatus", G_TYPE_UINT, redLevelChange, NULL);
+    gupnp_service_notify(service, "ColorGreenStatus", G_TYPE_UINT, greenLevelChange, NULL);
+    gupnp_service_notify(service, "ColorBlueStatus", G_TYPE_UINT, blueLevelChange, NULL);
     gupnp_service_action_return(action);
 
 }
