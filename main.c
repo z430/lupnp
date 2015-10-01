@@ -6,7 +6,7 @@ int main()
 {
     /**/
     //by default lamp is off
-    //switchStatus = FALSE;
+    switchStatus = FALSE;
 
     g_print("Default Status %s.\n", switchStatus ? "on" : "off");
 
