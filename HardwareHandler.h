@@ -10,10 +10,11 @@
 
 bool switchStatus;
 
-int setupWiringPi();
 void hardwareSetup();
 void switchControl(bool setStatus);
 void dimmingControl(int dimValue);
 void colorControl(int redLevel, int greenLevel, int blueLevel);
+void dimColorChange();
+long mapRGB(int value, long in_min, long in_max, long out_min, long out_max);
 
 #endif //LUPNP_HARDWAREHANDLER_H

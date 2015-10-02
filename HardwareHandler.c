@@ -8,12 +8,17 @@
 #include <stdio.h>
 
 const int pinRed = 6;
-const int pinBlue = 5;
-const int pinGreen = 4;
+const int pinBlue = 4;
+const int pinGreen = 5;
 
-int redDump, greenDump, blueDump;
+int redDump = 100;
+int greenDump = 100;
+int blueDump = 100;
+
+int dimValue = 100;
 
 void hardwareSetup() {
+
     wiringPiSetup();
     softPwmCreate(pinRed, 0, 100);
     softPwmCreate(pinGreen, 0, 100);
@@ -24,8 +29,7 @@ void hardwareSetup() {
     softPwmWrite(pinBlue, 0);
 }
 
-long mapRGB(int value, long in_min, long in_max, long out_min, long out_max)
-{
+long mapRGB(int value, long in_min, long in_max, long out_min, long out_max){
 	return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
@@ -34,9 +38,9 @@ void switchControl(bool setStatus) {
     switchStatus = setStatus;
     printf("Status Lampu: %s\n", switchStatus ? "on" : "off");
     if (setStatus) {
-        softPwmWrite(pinRed, 100);
-        softPwmWrite(pinGreen, 100);
-        softPwmWrite(pinBlue, 100);
+        softPwmWrite(pinRed, redDump);
+        softPwmWrite(pinGreen, greenDump);
+        softPwmWrite(pinBlue, blueDump);
     }
     else {
         softPwmWrite(pinRed, 0);
@@ -45,36 +49,43 @@ void switchControl(bool setStatus) {
     }
 }
 
-void dimmingControl(int dimValue) {
+void dimmingControl(int _dimValue) {
 
-    int newRed, newGreen, newBlue;
+    dimValue = _dimValue;
+    printf("dimmValue: %d\n", _dimValue);
 
-    // if(switchStatus)
-    //     printf("Dimming: %d.\n", dimValue);
-    // else
-    //     printf("Turn on Lamp First\n");
+    if(switchStatus){
+        dimColorChange();
+    }
+    else
+        printf("Turn on Lamp First\n");
 
-    newRed = mapRGB(redDump, 0, 100, 0, dimValue);
-    newGreen = mapRGB(greenDump, 0, 100, 0, dimValue);
-    newBlue = mapRGB(blueDump, 0, 100, 0, dimValue);
-
-  	softPwmWrite(pinRed, newRed);
-  	softPwmWrite(pinGreen, newGreen);
-  	softPwmWrite(pinBlue, newBlue);
 }
 
 void colorControl(int redLevel, int greenLevel, int blueLevel) {
 
+    printf("red: %d, green: %d, blue: %d\n", redLevel, greenLevel, blueLevel);
     redDump = redLevel;
     greenDump = greenLevel;
     blueDump = blueLevel;
 
-    softPwmWrite(pinRed, redDump);
-    softPwmWrite(pinGreen, greenDump);
-    softPwmWrite(pinBlue, blueDump);
+    if(switchStatus) {
+      dimColorChange();
+    }
+    else
+        printf("Turn on Lamp First\n");
+}
 
-    // if(switchStatus)
-    //     printf("%d %d %d\n", redLevel, greenLevel, blueLevel);
-    // else
-    //     printf("Turn on Lamp First\n");
+void dimColorChange(){
+  int dimm = dimValue;
+  int redDimm = mapRGB(redDump, 0, 100, 0, dimm);
+  int greenDimm = mapRGB(greenDump, 0, 100, 0, dimm);
+  int blueDimm = mapRGB(blueDump, 0, 100, 0, dimm);
+
+  softPwmWrite(pinRed, redDimm);
+  softPwmWrite(pinGreen, greenDimm);
+  softPwmWrite(pinBlue, blueDimm);
+
+  printf("redDimm: %d, greenDimm: %d, blueDimm: %d\n", redDimm, greenDimm, blueDimm);
+
 }
