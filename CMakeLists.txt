@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.0)
 project(lupnp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -9,13 +9,11 @@ add_executable(lupnp ${SOURCE_FILES} UpnpCore.h UpnpCore.c HardwareHandler.h Har
 
 include_directories("/usr/local/include/gupnp-1.0")
 include_directories("/usr/include/glib-2.0")
-include_directories("/usr/lib/x86_64-linux-gnu/glib-2.0/include")
+include_directories("/usr/lib/arm-linux-gnueabihf/glib-2.0/include")
 include_directories("/usr/include/libsoup-2.4")
 include_directories("/usr/include/libxml2")
 include_directories("/usr/include/uuid")
 include_directories("/usr/include/gssdp-1.0  ")
-include_directories("/usr/include/gtk-3.0")
-include_directories("/usr/lib/x86_64-linux-gnu")
 include_directories("/usr/local/include")
 
 link_directories("usr/local/lib")

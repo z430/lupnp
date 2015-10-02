@@ -1,3 +1,4 @@
+
 #include "UpnpCore.h"
 #include "HardwareHandler.h"
 
@@ -11,6 +12,7 @@ int main()
     g_print("Default Status %s.\n", switchStatus ? "on" : "off");
 
     upnpInit();
+    hardwareSetup();
 
     GMainLoop *mainLoop;
     mainLoop = g_main_loop_new(NULL, FALSE);

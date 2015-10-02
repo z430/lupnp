@@ -1,0 +1,1 @@
+/usr/bin/cc      CMakeFiles/lupnp.dir/main.c.o CMakeFiles/lupnp.dir/UpnpCore.c.o CMakeFiles/lupnp.dir/HardwareHandler.c.o  -o lupnp -rdynamic -lgmodule-2.0 -lgssdp-1.0 -lsoup-2.4 -lgobject-2.0 -lglib-2.0 -lxml2 -Wl,-Bstatic -luuid -Wl,-Bdynamic -lgupnp-1.0 -lwiringPi 
