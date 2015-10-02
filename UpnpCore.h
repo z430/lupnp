@@ -9,7 +9,7 @@
 
 #include <gmodule.h>
 
-void upnpInit();
+void upnpDump();
 
 
 #endif //LUPNP_UPNPCORE_H

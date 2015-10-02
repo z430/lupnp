@@ -12,9 +12,8 @@
 #define COLOR_SERVICE "urn:schemas-upnp-org:service:ColorChange:1"
 
 G_MODULE_EXPORT
-void set_target_cb(GUPnPService *service, GUPnPServiceAction *action,
-                   gpointer user_data)
-{
+void set_target_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data) {
+
     gboolean target;
     gupnp_service_action_get(action, "NewTargetValue", G_TYPE_BOOLEAN, &target, NULL);
 
@@ -29,8 +28,7 @@ void set_target_cb(GUPnPService *service, GUPnPServiceAction *action,
 }
 
 G_MODULE_EXPORT
-void set_loadlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data)
-{
+void set_loadlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
     guint loadLevel;
     gupnp_service_action_get(action, "newLoadlevelTarget", G_TYPE_UINT, &loadLevel, NULL);
 
@@ -44,8 +42,7 @@ void set_loadlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointe
 }
 
 G_MODULE_EXPORT
-void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data)
-{
+void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
     guint redLevelChange;
     guint greenLevelChange;
     guint blueLevelChange;
@@ -69,7 +66,7 @@ void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpoint
 
 }
 
-void upnpInit() {
+void upnpDump() {
 
     //create gupnp context or device
     GUPnPContext *context;
@@ -81,8 +78,10 @@ void upnpInit() {
     //define the upnp service
     GUPnPServiceInfo *switchService;
     switchService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), SWITCH_SERVICE);
+
     GUPnPServiceInfo *dimmingService;
     dimmingService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), DIMMING_SERVICE);
+
     GUPnPServiceInfo *colorService;
     colorService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), COLOR_SERVICE);
 
