@@ -11,9 +11,9 @@ const int pinRed = 6;
 const int pinBlue = 4;
 const int pinGreen = 5;
 
-int redDump = 100;
-int greenDump = 100;
-int blueDump = 100;
+int redDump;
+int greenDump;
+int blueDump;
 
 int dimValue = 100;
 
@@ -38,9 +38,14 @@ void switchControl(bool setStatus) {
     switchStatus = setStatus;
     printf("Status Lampu: %s\n", switchStatus ? "on" : "off");
     if (setStatus) {
+        redDump = 100;
+        greenDump = 100;
+        blueDump = 100;
+
         softPwmWrite(pinRed, redDump);
         softPwmWrite(pinGreen, greenDump);
         softPwmWrite(pinBlue, blueDump);
+        printf("%d %d %d\n", redDump, greenDump, blueDump);
     }
     else {
         softPwmWrite(pinRed, 0);
@@ -78,6 +83,13 @@ void colorControl(int redLevel, int greenLevel, int blueLevel) {
 
 void dimColorChange(){
   int dimm = dimValue;
+
+  // if(!switchStatus){
+  //   redDump = 100;
+  //   greenDump = 100;
+  //   blueDump = 100;
+  // }
+
   int redDimm = mapRGB(redDump, 0, 100, 0, dimm);
   int greenDimm = mapRGB(greenDump, 0, 100, 0, dimm);
   int blueDimm = mapRGB(blueDump, 0, 100, 0, dimm);
