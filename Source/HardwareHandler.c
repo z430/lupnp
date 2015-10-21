@@ -2,8 +2,8 @@
 // Created by myth on 8/18/15.
 //
 
-#include "HardwareHandler.h"
-#include "UpnpCore.h"
+#include "../Header/HardwareHandler.h"
+#include "../Header/UpnpCore.h"
 #include <wiringPi.h>
 #include <stdio.h>
 

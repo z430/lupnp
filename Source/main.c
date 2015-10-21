@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "UpnpCore.h"
-#include "HardwareHandler.h"
+#include "../Header/HardwareHandler.h"
+#include "../Header/UpnpCore.h"
 
 
 int main()

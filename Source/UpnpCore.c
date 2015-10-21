@@ -2,11 +2,12 @@
 // Created by myth on 8/8/15.
 //
 
-#include "UpnpCore.h"
-#include "HardwareHandler.h"
+#include "../Header/HardwareHandler.h"
+#include "../Header/UpnpCore.h"
 #include <libgupnp/gupnp.h>
 
-#define DEVICE_DOC "BinaryLight1.xml"
+
+#define DEVICE_DOC "../Resource/BinaryLight1.xml"
 #define SWITCH_SERVICE "urn:schemas-upnp-org:service:SwitchPower:1"
 #define DIMMING_SERVICE "urn:schemas-upnp-org:service:Dimming:1"
 #define COLOR_SERVICE "urn:schemas-upnp-org:service:ColorChange:1"

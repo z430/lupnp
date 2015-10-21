@@ -3,13 +3,14 @@ project(lupnp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.c)
-add_executable(lupnp ${SOURCE_FILES} UpnpCore.h UpnpCore.c HardwareHandler.h HardwareHandler.c)
+set(SOURCE_FILES Source/main.c)
+add_executable(lupnp ${SOURCE_FILES} Header/UpnpCore.h Source/UpnpCore.c Header/HardwareHandler.h Source/HardwareHandler.c)
 
 
 include_directories("/usr/local/include/gupnp-1.0")
 include_directories("/usr/include/glib-2.0")
-include_directories("/usr/lib/arm-linux-gnueabihf/glib-2.0/include")
+#include_directories("/usr/lib/arm-linux-gnueabihf/glib-2.0/include")
+include_directories("/usr/lib/x86_64-linux-gnu/glib-2.0/include")
 include_directories("/usr/include/libsoup-2.4")
 include_directories("/usr/include/libxml2")
 include_directories("/usr/include/uuid")
