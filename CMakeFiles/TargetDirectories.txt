@@ -1,1 +1,1 @@
-/home/pi/workspace/lupnp/CMakeFiles/lupnp.dir
+/home/myth/ClionProjects/lupnp/CMakeFiles/lupnp.dir

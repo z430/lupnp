@@ -16,23 +16,23 @@
       <service>
         <serviceType>urn:schemas-upnp-org:service:SwitchPower:1</serviceType>
         <serviceId>urn:upnp-org:serviceId:SwitchPower:1</serviceId>
-        <SCPDURL>/SwitchPower1.xml</SCPDURL>
-        <controlURL>/SwitchPower/Control</controlURL>
-        <eventSubURL>/SwitchPower/Event</eventSubURL>
+        <SCPDURL>Resource/SwitchPower1.xml</SCPDURL>
+        <controlURL>Resource/SwitchPower/Control</controlURL>
+        <eventSubURL>Resource/SwitchPower/Event</eventSubURL>
       </service>
       <service>
         <serviceType>urn:schemas-upnp-org:service:Dimming:1</serviceType>
         <serviceId>urn:upnp-org:serviceId:Dimming:1</serviceId>
-        <SCPDURL>/Dimming1.xml</SCPDURL>
-        <controlURL>/Dimming/Control</controlURL>
-        <eventSubURL>/Dimming/Event</eventSubURL>
+        <SCPDURL>Resource/Dimming1.xml</SCPDURL>
+        <controlURL>Resource/Dimming/Control</controlURL>
+        <eventSubURL>Resource/Dimming/Event</eventSubURL>
       </service>
       <service>
         <serviceType>urn:schemas-upnp-org:service:ColorChange:1</serviceType>
         <serviceId>urn:upnp-org:serviceId:ColorChange:1</serviceId>
-        <SCPDURL>/ColorChange1.xml</SCPDURL>
-        <controlURL>/ColorChange/Control</controlURL>
-        <eventSubURL>/ColorChange/Event</eventSubURL>
+        <SCPDURL>Resource/ColorChange1.xml</SCPDURL>
+        <controlURL>Resource/ColorChange/Control</controlURL>
+        <eventSubURL>Resource/ColorChange/Event</eventSubURL>
       </service>
     </serviceList>
   </device>

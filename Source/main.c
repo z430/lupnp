@@ -12,7 +12,7 @@ int main()
 
     g_print("Default Status %s.\n", switchStatus ? "on" : "off");
 
-    hardwareSetup();
+//    hardwareSetup();
     upnpDump();
 
     printf("Ready to go %d\n", i++);
