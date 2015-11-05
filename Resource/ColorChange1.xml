@@ -36,7 +36,7 @@
             <defaultValue>0</defaultValue>
             <allowedValueRange>
                 <minimum>0</minimum>
-                <maximum>100</maximum>
+                <maximum>255</maximum>
             </allowedValueRange>
         </stateVariable>
 
@@ -46,7 +46,7 @@
             <defaultValue>0</defaultValue>
             <allowedValueRange>
                 <minimum>0</minimum>
-                <maximum>100</maximum>
+                <maximum>255</maximum>
             </allowedValueRange>
         </stateVariable>
         <stateVariable sendEvents="yes">
@@ -55,7 +55,7 @@
             <defaultValue>0</defaultValue>
             <allowedValueRange>
                 <minimum>0</minimum>
-                <maximum>100</maximum>
+                <maximum>255</maximum>
             </allowedValueRange>
         </stateVariable>
         <stateVariable sendEvents="yes">

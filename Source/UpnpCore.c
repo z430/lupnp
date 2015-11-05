@@ -11,17 +11,20 @@
 #define DIMMING_SERVICE "urn:schemas-upnp-org:service:Dimming:1"
 #define COLOR_SERVICE "urn:schemas-upnp-org:service:ColorChange:1"
 
+gboolean target;
+guint loadLevel;
+
+guint redLevelChange;
+guint greenLevelChange;
+guint blueLevelChange;
+
 G_MODULE_EXPORT
 void set_target_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data) {
 
-    gboolean target;
     gupnp_service_action_get(action, "NewTargetValue", G_TYPE_BOOLEAN, &target, NULL);
 
     switchControl(target);
-    /*
-    gupnp_service_notify(service, "Status", G_TYPE_BOOLEAN, status, NULL);
-    g_print("Status : %s.\n", status ? "on" : "off");
-    */
+
     gupnp_service_notify(service, "Status", G_TYPE_BOOLEAN, target, NULL);
     gupnp_service_action_return(action);
 
@@ -29,23 +32,17 @@ void set_target_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer u
 
 G_MODULE_EXPORT
 void set_loadlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    guint loadLevel;
+
     gupnp_service_action_get(action, "newLoadlevelTarget", G_TYPE_UINT, &loadLevel, NULL);
 
     dimmingControl(loadLevel);
-    /*
-    //dimming = loadLevel;
-    //g_print("loadLevel : %d.\n", dimming);
-    */
+
     gupnp_service_notify(service, "LoadLevelStatus", G_TYPE_UINT, loadLevel, NULL);
     gupnp_service_action_return(action);
 }
 
 G_MODULE_EXPORT
 void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    guint redLevelChange;
-    guint greenLevelChange;
-    guint blueLevelChange;
 
     gupnp_service_action_get(action, "newRedTarget", G_TYPE_UINT, &redLevelChange, NULL);
     gupnp_service_action_get(action, "newGreenTarget", G_TYPE_UINT, &greenLevelChange, NULL);
@@ -53,12 +50,6 @@ void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpoint
 
     colorControl(redLevelChange, greenLevelChange, blueLevelChange);
 
-    /*
-    redLevel = redLevelChange;
-    greenLevel = greenLevelChange;
-    blueLevel = blueLevelChange;
-    g_print("R: %d. G: %d. B: %d.\n", redLevel, greenLevel, blueLevel);
-    */
     gupnp_service_notify(service, "ColorRedStatus", G_TYPE_UINT, redLevelChange, NULL);
     gupnp_service_notify(service, "ColorGreenStatus", G_TYPE_UINT, greenLevelChange, NULL);
     gupnp_service_notify(service, "ColorBlueStatus", G_TYPE_UINT, blueLevelChange, NULL);
@@ -66,10 +57,31 @@ void set_colorlevel_cb(GUPnPService *service, GUPnPServiceAction *action, gpoint
 
 }
 
+G_MODULE_EXPORT
+void target_query (GUPnPService *service, gchar *variable, gpointer value, gpointer user_data){
+    g_value_init(value, G_TYPE_BOOLEAN);
+    g_value_set_boolean(value, target);
+}
+
+G_MODULE_EXPORT
+void loadLevel_query (GUPnPService *service, gchar *variable, gpointer value, gpointer user_data){
+    g_value_init(value, G_TYPE_UINT);
+    g_value_set_uint(value, loadLevel);
+}
+
+G_MODULE_EXPORT
+void color_query (GUPnPService *service, gchar *variable, gpointer value, gpointer user_data){
+    g_value_init(value, G_TYPE_UINT);
+    g_value_set_uint(value, redLevelChange);
+    g_value_set_uint(value, greenLevelChange);
+    g_value_set_uint(value, blueLevelChange);
+}
+
 void upnpDump() {
 
     //create gupnp context or device
     GUPnPContext *context;
+    GError *error = NULL;
     context = gupnp_context_new(NULL, NULL, 0, NULL);
     GUPnPRootDevice *dev;
     dev = gupnp_root_device_new(context, DEVICE_DOC, ".");
@@ -85,8 +97,16 @@ void upnpDump() {
     GUPnPServiceInfo *colorService;
     colorService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), COLOR_SERVICE);
 
+    // action invoked
     g_signal_connect(switchService, "action-invoked::SetTarget", G_CALLBACK(set_target_cb), NULL);
     g_signal_connect(dimmingService, "action-invoked::SetLoadLevelTarget", G_CALLBACK(set_loadlevel_cb), NULL);
     g_signal_connect(colorService, "action-invoked::SetColorChangeTarget", G_CALLBACK(set_colorlevel_cb), NULL);
+
+    // query subscription
+    g_signal_connect(switchService, "query-variable::Status", G_CALLBACK(target_query), NULL);
+    g_signal_connect(dimmingService, "query-variable::LoadLevelStatus", G_CALLBACK(loadLevel_query), NULL);
+    g_signal_connect(colorService, "query-variable::ColorRedStatus", G_CALLBACK(color_query), NULL);
+    g_signal_connect(colorService, "query-variable::ColorGreenStatus", G_CALLBACK(color_query), NULL);
+    g_signal_connect(colorService, "query-variable::ColorBlueStatus", G_CALLBACK(color_query), NULL);
 
 }

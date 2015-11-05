@@ -6,6 +6,7 @@
 #include "../Header/UpnpCore.h"
 #include <wiringPi.h>
 #include <stdio.h>
+#include <softPwm.h>
 
 const int pinRed = 6;
 const int pinBlue = 4;
@@ -55,7 +56,8 @@ void switchControl(bool setStatus) {
 }
 
 void dimmingControl(int _dimValue) {
-
+    if (dimValue > 100)
+        _dimValue = 100;
     dimValue = _dimValue;
     printf("dimmValue: %d\n", _dimValue);
 
