@@ -37,7 +37,6 @@ long mapRGB(int value, long in_min, long in_max, long out_min, long out_max){
 void switchControl(bool setStatus) {
 
     switchStatus = setStatus;
-    printf("Status Lampu: %s\n", switchStatus ? "on" : "off");
     if (setStatus) {
         redDump = 100;
         greenDump = 100;
@@ -46,7 +45,6 @@ void switchControl(bool setStatus) {
         softPwmWrite(pinRed, redDump);
         softPwmWrite(pinGreen, greenDump);
         softPwmWrite(pinBlue, blueDump);
-        printf("%d %d %d\n", redDump, greenDump, blueDump);
     }
     else {
         softPwmWrite(pinRed, 0);
@@ -56,13 +54,11 @@ void switchControl(bool setStatus) {
 }
 
 void dimmingControl(int _dimValue) {
-    if (dimValue > 100)
-        _dimValue = 100;
-    dimValue = _dimValue;
-    printf("dimmValue: %d\n", _dimValue);
 
-    if(switchStatus){
-        dimColorChange();
+    dimValue = mapRGB(_dimValue, 0, 255, 0, 100);
+    if(switchStatus)
+    {
+      dimColorChange();
     }
     else
         printf("Turn on Lamp First\n");
@@ -71,26 +67,20 @@ void dimmingControl(int _dimValue) {
 
 void colorControl(int redLevel, int greenLevel, int blueLevel) {
 
-    printf("red: %d, green: %d, blue: %d\n", redLevel, greenLevel, blueLevel);
-    redDump = redLevel;
-    greenDump = greenLevel;
-    blueDump = blueLevel;
+    redDump = mapRGB(redLevel, 0, 255, 0, 100);
+    greenDump = mapRGB(greenLevel, 0, 255, 0, 100);
+    blueDump = mapRGB(blueLevel, 0, 255, 0, 100);
 
-    if(switchStatus) {
+    if(switchStatus)
+    {
       dimColorChange();
     }
     else
-        printf("Turn on Lamp First\n");
+      printf("Turn on Lamp First\n");
 }
 
 void dimColorChange(){
   int dimm = dimValue;
-
-  // if(!switchStatus){
-  //   redDump = 100;
-  //   greenDump = 100;
-  //   blueDump = 100;
-  // }
 
   int redDimm = mapRGB(redDump, 0, 100, 0, dimm);
   int greenDimm = mapRGB(greenDump, 0, 100, 0, dimm);
@@ -100,6 +90,7 @@ void dimColorChange(){
   softPwmWrite(pinGreen, greenDimm);
   softPwmWrite(pinBlue, blueDimm);
 
-  printf("redDimm: %d, greenDimm: %d, blueDimm: %d\n", redDimm, greenDimm, blueDimm);
+  printf("Status %s. R: %d G: %d B: %d\n", switchStatus ? "on" : "off", redDimm, greenDimm, blueDimm);
+  fflush(stdout);
 
 }
