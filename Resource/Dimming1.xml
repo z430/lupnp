@@ -6,6 +6,7 @@
     </specVersion>
 
     <actionList>
+
         <action>
             <name>SetLoadLevelTarget</name>
             <argumentList>
@@ -13,6 +14,30 @@
                     <name>newLoadlevelTarget</name>
                     <direction>in</direction>
                     <relatedStateVariable>LoadLevelTarget</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+
+        <action>
+            <name>GetLoadLevelTarget</name>
+            <argumentList>
+                <argument>
+                    <name>retLoadlevelTarget</name>
+                    <direction>out</direction>
+                    <retval />
+                    <relatedStateVariable>LoadLevelTarget</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+
+        <action>
+            <name>GetLoadLevelStatus</name>
+            <argumentList>
+                <argument>
+                    <name>retLoadlevelStatus</name>
+                    <direction>out</direction>
+                    <retval />
+                    <relatedStateVariable>LoadLevelStatus</relatedStateVariable>
                 </argument>
             </argumentList>
         </action>
