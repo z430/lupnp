@@ -29,18 +29,16 @@ static GList *colorProxies;
 
 static GUPnPXMLDoc *doc;
 static char *desc_location;
-static char uuid[37];
 
 static NetworkLight * networkLightNew (GUPnPRootDevice *dev,
                                        GUPnPServiceInfo *switchPower,
-                                       GUPnPServiceInfo *dimming,
-                                       GUPnPServiceInfo *color){
+                                       GUPnPServiceInfo *dimming){
     NetworkLight *networkLight;
     networkLight = g_slice_new(NetworkLight);
     networkLight->dev = dev;
     networkLight->switchPower = switchPower;
     networkLight->dimming = dimming;
-    networkLight->color = color;
+//    networkLight->color = color;
 
     return networkLight;
 }
@@ -55,24 +53,40 @@ static void networkLightFree(NetworkLight *networkLight){
 }
 
 void notifyStatusChange(gboolean status){
-    GList *networkLights;
+    GList *network_lights;
     GList *nl_node;
 
-    networkLights = g_hash_table_get_values(nlHash);
-    for(nl_node = networkLights; nl_node != NULL; nl_node->next){
-        NetworkLight *nl = (NetworkLight *)nl_node->data;
-        gupnp_service_notify(GUPNP_SERVICE(nl->switchPower), "Status", G_TYPE_BOOLEAN, status, NULL);
+    network_lights = g_hash_table_get_values (nlHash);
+
+    for (nl_node = network_lights;
+         nl_node != NULL;
+         nl_node = nl_node->next) {
+        NetworkLight *nl = (NetworkLight *) nl_node->data;
+
+        gupnp_service_notify (GUPNP_SERVICE (nl->switchPower),
+                              "Status",
+                              G_TYPE_BOOLEAN,
+                              status,
+                              NULL);
     }
 }
 
 void notifyLoadLevelChange(gint loadLevel){
-    GList *networkLights;
+    GList *network_lights;
     GList *nl_node;
 
-    networkLights = g_hash_table_get_values(nlHash);
-    for(nl_node = networkLights; nl_node != NULL; nl_node->next){
-        NetworkLight *nl = (NetworkLight *)nl_node->data;
-        gupnp_service_notify(GUPNP_SERVICE(nl->dimming), "LoadLevelStatus", G_TYPE_UINT, loadLevel, NULL);
+    network_lights = g_hash_table_get_values (nlHash);
+
+    for (nl_node = network_lights;
+         nl_node != NULL;
+         nl_node = nl_node->next) {
+        NetworkLight *nl = (NetworkLight *) nl_node->data;
+
+        gupnp_service_notify (GUPNP_SERVICE (nl->dimming),
+                              "LoadLevelStatus",
+                              G_TYPE_UINT,
+                              loadLevel,
+                              NULL);
     }
 }
 
@@ -87,6 +101,10 @@ void notifyColorChange(gint red, gint green, gint blue){
         gupnp_service_notify(GUPNP_SERVICE(nl->color), "ColorGreenStatus", G_TYPE_UINT, green, NULL);
         gupnp_service_notify(GUPNP_SERVICE(nl->color), "ColorBlueStatus", G_TYPE_UINT, blue, NULL);
     }
+}
+
+gint get_load_level(){
+    return loadLevel;
 }
 
 G_MODULE_EXPORT
@@ -111,30 +129,26 @@ void on_set_target(GUPnPService *service, GUPnPServiceAction *action, gpointer u
 }
 
 G_MODULE_EXPORT
-void
-on_query_status (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data)
-{
+void on_query_status (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
     g_value_init (value, G_TYPE_BOOLEAN);
     g_value_set_boolean (value, target);
 }
 
 G_MODULE_EXPORT
-void
-on_query_target (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data)
-{
+void on_query_target (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
     g_value_init (value, G_TYPE_BOOLEAN);
     g_value_set_boolean (value, target);
 }
 
 G_MODULE_EXPORT
 void on_get_load_level_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_set(action, "retLoadLevelStatus", G_TYPE_UINT, loadLevel, NULL);
+    gupnp_service_action_set(action, "retLoadLevelStatus", G_TYPE_UINT, get_load_level(), NULL);
     gupnp_service_action_return(action);
 }
 
 G_MODULE_EXPORT
 void on_get_load_level_target(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_set(action, "retLoadLevelTarget", G_TYPE_UINT, loadLevel, NULL);
+    gupnp_service_action_set(action, "retLoadLevelTarget", G_TYPE_UINT, get_load_level(), NULL);
     gupnp_service_action_return(action);
 }
 
@@ -146,7 +160,6 @@ void on_set_load_level_target(GUPnPService *service, GUPnPServiceAction *action,
     g_print("Level: %d\n", loadLevel);
     gupnp_service_action_return(action);
 }
-
 
 G_MODULE_EXPORT
 void on_query_load_level_status (GUPnPService *service, const char *variable, GValue *value, gpointer user_data){
@@ -198,21 +211,6 @@ static void on_notify_failed(GUPnPService *service, const GList *callback_urls, 
     g_string_free(warning, TRUE);
 }
 
-void on_service_proxy_action_ret(GUPnPServiceProxy *proxy, GUPnPServiceProxyAction *action, gpointer user_data){
-    GError *error = NULL;
-    gupnp_service_proxy_end_action(proxy, action, &error, NULL);
-    if(error){
-        GUPnPServiceInfo *info = GUPNP_SERVICE_INFO(proxy);
-        g_warning("Failed to call action \"%s\" on \"%s\": %s",
-                  (char *) user_data,
-                  gupnp_service_info_get_location (info),
-                  error->message);
-        g_error_free(error);
-    }
-
-    g_free(user_data);
-}
-
 static void on_network_light_available (GUPnPControlPoint *cp, GUPnPDeviceProxy  *light_proxy, gpointer user_data){
 
     GUPnPServiceProxy *switch_proxy;
@@ -224,7 +222,7 @@ static void on_network_light_available (GUPnPControlPoint *cp, GUPnPDeviceProxy 
     switch_proxy = GUPNP_SERVICE_PROXY (info);
 
     if (switch_proxy) {
-        switch_proxy = g_list_append (switchProxies, switch_proxy);
+        switchProxies = g_list_append (switchProxies, switch_proxy);
     }
 
     info = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (light_proxy),
@@ -278,22 +276,28 @@ static gboolean init_server(GUPnPContext *context){
 
     /* Create root device */
     dev = gupnp_root_device_new_full(context, gupnp_resource_factory_get_default(), NULL, DEVICE_DOC, ".");
+
     switchPower = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), SWITCH_SERVICE);
+
     if(switchPower){
         gupnp_service_signals_autoconnect(GUPNP_SERVICE(switchPower), NULL, &error);
         g_signal_connect(switchPower, "notify-failed", G_CALLBACK(on_notify_failed), NULL);
     }
+
     dimming = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), DIMMING_SERVICE);
+
     if(dimming){
         gupnp_service_signals_autoconnect(GUPNP_SERVICE(dimming), NULL, &error);
         g_signal_connect(dimming, "notify-failed", G_CALLBACK(on_notify_failed), NULL);
-
-        /* RUN */
-        gupnp_root_device_set_available(dev, TRUE);
-        g_print("Attaching to IP/HOST %s on port %d\n", gupnp_context_get_host_ip(context), gupnp_context_get_port(context));
-
-        return TRUE;
     }
+
+    networkLight = networkLightNew(dev, switchPower, dimming);
+    g_hash_table_insert(nlHash, g_object_ref(context), networkLight);
+    /* RUN */
+    gupnp_root_device_set_available(dev, true);
+    g_print("Attaching to IP/HOST %s on port %d\n", gupnp_context_get_host_ip(context), gupnp_context_get_port(context));
+
+    return true;
 }
 
 static gboolean init_client (GUPnPContext *context){
@@ -321,10 +325,7 @@ static gboolean init_client (GUPnPContext *context){
     return TRUE;
 }
 
-static void
-on_context_available (GUPnPContextManager *context_manager,
-                      GUPnPContext        *context,
-                      gpointer             user_data){
+static void on_context_available (GUPnPContextManager *context_manager, GUPnPContext *context, gpointer user_data){
     /* Initialize client-side stuff */
     init_client (context);
 
@@ -332,9 +333,7 @@ on_context_available (GUPnPContextManager *context_manager,
     init_server (context);
 }
 
-static void on_context_unavailable (GUPnPContextManager *context_manager,
-                        GUPnPContext        *context,
-                        gpointer             user_data){
+static void on_context_unavailable (GUPnPContextManager *context_manager, GUPnPContext *context, gpointer user_data){
     g_print ("Dettaching from IP/Host %s and port %d\n",
              gupnp_context_get_host_ip (context),
              gupnp_context_get_port (context));
@@ -342,15 +341,12 @@ static void on_context_unavailable (GUPnPContextManager *context_manager,
     g_hash_table_remove (nlHash, context);
 }
 
-static gboolean
-context_equal (GUPnPContext *context1, GUPnPContext *context2)
-{
+static gboolean context_equal (GUPnPContext *context1, GUPnPContext *context2) {
     return g_ascii_strcasecmp (gupnp_context_get_host_ip (context1),
                                gupnp_context_get_host_ip (context2)) == 0;
 }
 
-gboolean initUPnP (void)
-{
+gboolean initUPnP (void) {
     GError *error = NULL;
 
     switchProxies = NULL;
@@ -373,11 +369,10 @@ gboolean initUPnP (void)
                       G_CALLBACK (on_context_unavailable),
                       NULL);
 
-    return TRUE;
+    return true;
 }
 
-void deinitUPnP(void)
-{
+void deinitUPnP(void){
     g_object_unref (contextManager);
 
     g_hash_table_unref (nlHash);
@@ -389,33 +384,3 @@ void deinitUPnP(void)
     g_object_unref (doc);
     g_free (desc_location);
 }
-
-
-/*
-void upnpDump() {
-
-    //create gupnp context or device
-    GUPnPContext *context;
-    GError *error = NULL;
-    context = gupnp_context_new(NULL, NULL, 0, NULL);
-    GUPnPRootDevice *dev;
-    dev = gupnp_root_device_new(context, DEVICE_DOC, ".");
-    gupnp_root_device_set_available(dev, TRUE);
-
-    //define the upnp service
-    GUPnPServiceInfo *switchService;
-    switchService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), SWITCH_SERVICE);
-
-    GUPnPServiceInfo *dimmingService;
-    dimmingService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), DIMMING_SERVICE);
-
-    GUPnPServiceInfo *colorService;
-    colorService = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), COLOR_SERVICE);
-
-    // action invoked
-    gupnp_service_signals_autoconnect(GUPNP_SERVICE(switchService), NULL, &error);
-    gupnp_service_signals_autoconnect(GUPNP_SERVICE(dimmingService), NULL, &error);
-    gupnp_service_signals_autoconnect(GUPNP_SERVICE(colorService), NULL, &error);
-
-}
-*/
