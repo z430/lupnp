@@ -23,7 +23,6 @@
                 <argument>
                     <name>retLoadlevelTarget</name>
                     <direction>out</direction>
-                    <retval />
                     <relatedStateVariable>LoadLevelTarget</relatedStateVariable>
                 </argument>
             </argumentList>
@@ -35,7 +34,6 @@
                 <argument>
                     <name>retLoadlevelStatus</name>
                     <direction>out</direction>
-                    <retval />
                     <relatedStateVariable>LoadLevelStatus</relatedStateVariable>
                 </argument>
             </argumentList>

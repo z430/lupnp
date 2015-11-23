@@ -26,6 +26,27 @@
                 </argument>
             </argumentList>
         </action>
+
+        <action>
+            <name>GetColorChangeTarget</name>
+            <argumentList>
+                <argument>
+                    <name>retRedTarget</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>retGreenTarget</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>retBlueTarget</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
     </actionList>
 
 

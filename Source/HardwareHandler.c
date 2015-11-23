@@ -76,6 +76,7 @@ void colorControl(int redLevel, int greenLevel, int blueLevel) {
     if(switchStatus)
     {
       dimColorChange();
+        notifyColorChange(redLevel, greenLevel, blueLevel);
     }
     else
       printf("Turn on Lamp First\n");

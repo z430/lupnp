@@ -32,13 +32,14 @@ static char *desc_location;
 
 static NetworkLight * networkLightNew (GUPnPRootDevice *dev,
                                        GUPnPServiceInfo *switchPower,
-                                       GUPnPServiceInfo *dimming){
+                                       GUPnPServiceInfo *dimming,
+                                       GUPnPServiceInfo *color){
     NetworkLight *networkLight;
     networkLight = g_slice_new(NetworkLight);
     networkLight->dev = dev;
     networkLight->switchPower = switchPower;
     networkLight->dimming = dimming;
-//    networkLight->color = color;
+    networkLight->color = color;
 
     return networkLight;
 }
@@ -52,7 +53,9 @@ static void networkLightFree(NetworkLight *networkLight){
     g_slice_free(NetworkLight, networkLight);
 }
 
-void notifyStatusChange(gboolean status){
+/* Service notify module (notification) */
+
+void notifyStatusChange(gboolean getstatus){
     GList *network_lights;
     GList *nl_node;
 
@@ -60,18 +63,19 @@ void notifyStatusChange(gboolean status){
 
     for (nl_node = network_lights;
          nl_node != NULL;
+
          nl_node = nl_node->next) {
         NetworkLight *nl = (NetworkLight *) nl_node->data;
 
         gupnp_service_notify (GUPNP_SERVICE (nl->switchPower),
                               "Status",
                               G_TYPE_BOOLEAN,
-                              status,
+                              getstatus,
                               NULL);
     }
 }
 
-void notifyLoadLevelChange(gint loadLevel){
+void notifyLoadLevelChange(gint getloadLevel){
     GList *network_lights;
     GList *nl_node;
 
@@ -85,27 +89,46 @@ void notifyLoadLevelChange(gint loadLevel){
         gupnp_service_notify (GUPNP_SERVICE (nl->dimming),
                               "LoadLevelStatus",
                               G_TYPE_UINT,
-                              loadLevel,
+                              getloadLevel,
                               NULL);
     }
 }
 
 void notifyColorChange(gint red, gint green, gint blue){
-    GList *networkLights;
+
+    GList *network_lights;
     GList *nl_node;
 
-    networkLights = g_hash_table_get_values(nlHash);
-    for(nl_node = networkLights; nl_node != NULL; nl_node->next){
-        NetworkLight *nl = (NetworkLight *)nl_node->data;
+    network_lights = g_hash_table_get_values (nlHash);
+
+    for (nl_node = network_lights;
+         nl_node != NULL;
+         nl_node = nl_node->next) {
+        NetworkLight *nl = (NetworkLight *) nl_node->data;
+
         gupnp_service_notify(GUPNP_SERVICE(nl->color), "ColorRedStatus", G_TYPE_UINT, red, NULL);
         gupnp_service_notify(GUPNP_SERVICE(nl->color), "ColorGreenStatus", G_TYPE_UINT, green, NULL);
         gupnp_service_notify(GUPNP_SERVICE(nl->color), "ColorBlueStatus", G_TYPE_UINT, blue, NULL);
     }
+
+
 }
 
-gint get_load_level(){
-    return loadLevel;
+static void on_notify_failed(GUPnPService *service, const GList *callback_urls, const GError *reason, gpointer user_data){
+    GList *url_node;
+    GString *warning;
+
+    warning = g_string_new(NULL);
+    g_string_printf(warning, "NOTIFY failed for the following client URLs:\n");
+    for(url_node = (GList *) callback_urls; url_node; url_node = url_node->next){
+        g_string_append_printf(warning, "%s\n", (char *) url_node->data);
+    }
+
+    g_string_append_printf(warning, "Reason: %s", reason->message);
+    g_string_free(warning, TRUE);
 }
+
+/* Switch Module */
 
 G_MODULE_EXPORT
 void on_get_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
@@ -140,15 +163,26 @@ void on_query_target (GUPnPService *service, const char *variable_name, GValue *
     g_value_set_boolean (value, target);
 }
 
+/* TODO
+ * Weird, get status & get target don't work
+ * something wrong with the XML or the method itself
+ * */
+
+/* Dimming Module */
+
+
 G_MODULE_EXPORT
-void on_get_load_level_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_set(action, "retLoadLevelStatus", G_TYPE_UINT, get_load_level(), NULL);
+void on_get_load_level_target(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+    gupnp_service_action_set(action, "retLoadlevelTarget", G_TYPE_UINT, loadLevel, NULL);
+    g_print("test target");
     gupnp_service_action_return(action);
 }
 
 G_MODULE_EXPORT
-void on_get_load_level_target(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_set(action, "retLoadLevelTarget", G_TYPE_UINT, get_load_level(), NULL);
+void on_get_load_level_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+
+    gupnp_service_action_set(action, "retLoadlevelTarget", G_TYPE_UINT, 69, NULL);
+    g_print("test status");
     gupnp_service_action_return(action);
 }
 
@@ -173,65 +207,70 @@ void on_query_load_level_target (GUPnPService *service, const char *variable, GV
     g_value_set_uint(value, loadLevel);
 }
 
+/* Color Module */
+// todo implement color service (on get, on set, on target)
+
 G_MODULE_EXPORT
-void on_set_colorlevel(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+void on_set_color_level(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
 
     gupnp_service_action_get(action, "newRedTarget", G_TYPE_UINT, &redLevelChange, NULL);
     gupnp_service_action_get(action, "newGreenTarget", G_TYPE_UINT, &greenLevelChange, NULL);
     gupnp_service_action_get(action, "newBlueTarget", G_TYPE_UINT, &blueLevelChange, NULL);
 
     colorControl(redLevelChange, greenLevelChange, blueLevelChange);
-
-    gupnp_service_notify(service, "ColorRedStatus", G_TYPE_UINT, redLevelChange, NULL);
-    gupnp_service_notify(service, "ColorGreenStatus", G_TYPE_UINT, greenLevelChange, NULL);
-    gupnp_service_notify(service, "ColorBlueStatus", G_TYPE_UINT, blueLevelChange, NULL);
     gupnp_service_action_return(action);
 
 }
 
 G_MODULE_EXPORT
-void on_query_color_status (GUPnPService *service, gchar *variable, gpointer value, gpointer user_data){
+void on_get_color_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+
+    gupnp_service_action_set(action, "retRedTarget", G_TYPE_UINT, redLevelChange, NULL);
+    gupnp_service_action_set(action, "retGreenTarget", G_TYPE_UINT, greenLevelChange, NULL);
+    gupnp_service_action_set(action, "retBlueTarget", G_TYPE_UINT, blueLevelChange, NULL);
+    gupnp_service_action_return(action);
+}
+
+G_MODULE_EXPORT
+void on_query_color_status (GUPnPService *service, const char *variable, GValue *value, gpointer user_data){
+
     g_value_init(value, G_TYPE_UINT);
     g_value_set_uint(value, redLevelChange);
     g_value_set_uint(value, greenLevelChange);
     g_value_set_uint(value, blueLevelChange);
 }
 
-static void on_notify_failed(GUPnPService *service, const GList *callback_urls, const GError *reason, gpointer user_data){
-    GList *url_node;
-    GString *warning;
+void on_query_color_target (GUPnPService *service, const char *variable, GValue *value, gpointer user_data){
 
-    warning = g_string_new(NULL);
-    g_string_printf(warning, "NOTIFY failed for the following client URLs:\n");
-    for(url_node = (GList *) callback_urls; url_node; url_node = url_node->next){
-        g_string_append_printf(warning, "%s\n", (char *) url_node->data);
-    }
-
-    g_string_append_printf(warning, "Reason: %s", reason->message);
-    g_string_free(warning, TRUE);
+    g_value_init(value, G_TYPE_UINT);
+    g_value_set_uint(value, redLevelChange);
+    g_value_set_uint(value, greenLevelChange);
+    g_value_set_uint(value, blueLevelChange);
 }
 
 static void on_network_light_available (GUPnPControlPoint *cp, GUPnPDeviceProxy  *light_proxy, gpointer user_data){
 
     GUPnPServiceProxy *switch_proxy;
     GUPnPServiceProxy *dimming_proxy;
+    GUPnPServiceProxy *color_proxy;
     GUPnPServiceInfo  *info;
 
-    info = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (light_proxy),
-                                          SWITCH_SERVICE);
+    info = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (light_proxy), SWITCH_SERVICE);
     switch_proxy = GUPNP_SERVICE_PROXY (info);
-
     if (switch_proxy) {
         switchProxies = g_list_append (switchProxies, switch_proxy);
     }
 
-    info = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (light_proxy),
-                                          DIMMING_SERVICE);
+    info = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (light_proxy), DIMMING_SERVICE);
     dimming_proxy = GUPNP_SERVICE_PROXY (info);
-
     if (dimming_proxy) {
-        dimmingProxies = g_list_append (dimmingProxies,
-                                         dimming_proxy);
+        dimmingProxies = g_list_append (dimmingProxies, dimming_proxy);
+    }
+
+    info = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(light_proxy), COLOR_SERVICE);
+    color_proxy = GUPNP_SERVICE_PROXY(info);
+    if (color_proxy){
+        colorProxies = g_list_append(colorProxies, color_proxy);
     }
 }
 
@@ -256,6 +295,7 @@ static void remove_service_from_list(GUPnPServiceInfo *info, GList **list){
 }
 
 static void on_network_light_unavailable(GUPnPControlPoint *controlPoint, GUPnPDeviceProxy *lightProxy, gpointer user_data){
+
     GUPnPServiceInfo *info;
     info = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(lightProxy), SWITCH_SERVICE);
     if(info){
@@ -265,34 +305,47 @@ static void on_network_light_unavailable(GUPnPControlPoint *controlPoint, GUPnPD
     if(info){
         remove_service_from_list(info, &dimmingProxies);
     }
+    info = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(lightProxy), COLOR_SERVICE);
+    if(info){
+        remove_service_from_list(info, &colorProxies);
+    }
 }
 
 static gboolean init_server(GUPnPContext *context){
-    NetworkLight *networkLight;
+
+    NetworkLight *networkLights;
     GUPnPRootDevice *dev;
     GUPnPServiceInfo *switchPower;
     GUPnPServiceInfo *dimming;
+    GUPnPServiceInfo *color;
     GError *error = NULL;
 
     /* Create root device */
     dev = gupnp_root_device_new_full(context, gupnp_resource_factory_get_default(), NULL, DEVICE_DOC, ".");
 
     switchPower = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), SWITCH_SERVICE);
-
     if(switchPower){
         gupnp_service_signals_autoconnect(GUPNP_SERVICE(switchPower), NULL, &error);
         g_signal_connect(switchPower, "notify-failed", G_CALLBACK(on_notify_failed), NULL);
     }
 
     dimming = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), DIMMING_SERVICE);
-
     if(dimming){
         gupnp_service_signals_autoconnect(GUPNP_SERVICE(dimming), NULL, &error);
         g_signal_connect(dimming, "notify-failed", G_CALLBACK(on_notify_failed), NULL);
     }
 
-    networkLight = networkLightNew(dev, switchPower, dimming);
-    g_hash_table_insert(nlHash, g_object_ref(context), networkLight);
+    color = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), COLOR_SERVICE);
+    if(color){
+        gupnp_service_signals_autoconnect(GUPNP_SERVICE(color), NULL, &error);
+        g_signal_connect(color, "notify-failed", G_CALLBACK(on_notify_failed), NULL);
+    }
+    else{
+        g_print("color service failed\n");
+    }
+
+    networkLights = networkLightNew(dev, switchPower, dimming, color);
+    g_hash_table_insert(nlHash, g_object_ref(context), networkLights);
     /* RUN */
     gupnp_root_device_set_available(dev, true);
     g_print("Attaching to IP/HOST %s on port %d\n", gupnp_context_get_host_ip(context), gupnp_context_get_port(context));
@@ -351,6 +404,7 @@ gboolean initUPnP (void) {
 
     switchProxies = NULL;
     dimmingProxies = NULL;
+    colorProxies = NULL;
 
     nlHash = g_hash_table_new_full (g_direct_hash,
                                      (GEqualFunc) context_equal,
@@ -379,6 +433,7 @@ void deinitUPnP(void){
 
     g_list_foreach (switchProxies, (GFunc) g_object_unref, NULL);
     g_list_foreach (dimmingProxies, (GFunc) g_object_unref, NULL);
+    g_list_foreach(colorProxies, (GFunc) g_object_unref, NULL);
 
     /* Unref the descriptiont doc */
     g_object_unref (doc);
