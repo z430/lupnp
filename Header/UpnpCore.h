@@ -17,14 +17,14 @@ guint redLevelChange;
 guint greenLevelChange;
 guint blueLevelChange;
 
-void notifyStatusChange(gboolean status);
-void notifyLoadLevelChange(gint loadLevel);
-void notifyColorChange(gint red, gint green, gint blue);
-gboolean initUPnP();
-void deinitUPnP();
-void setAllStatus(gboolean status);
-void setAllLoadLevel(gint loadLevel);
-void setAllColor(gint red, gint green, gint blue);
+void notify_status_change(gboolean status);
+void notify_load_level_change(gint load_level);
+void notify_color_change(gint red, gint green, gint blue);
+gboolean init_upnp();
+void deinit_upnp();
+void set_all_status(gboolean status);
+void set_all_load_level (gint load_level);
+void set_all_color_status(gint red, gint green, gint blue);
 void upnpDump();
 
 

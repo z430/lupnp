@@ -12,17 +12,17 @@
                 <argument>
                     <name>newRedTarget</name>
                     <direction>in</direction>
-                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                    <relatedStateVariable>ColorRedTarget</relatedStateVariable>
                 </argument>
                 <argument>
                     <name>newGreenTarget</name>
                     <direction>in</direction>
-                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                    <relatedStateVariable>ColorGreenTarget</relatedStateVariable>
                 </argument>
                 <argument>
                     <name>newBlueTarget</name>
                     <direction>in</direction>
-                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                    <relatedStateVariable>ColorBlueTarget</relatedStateVariable>
                 </argument>
             </argumentList>
         </action>
@@ -33,26 +33,66 @@
                 <argument>
                     <name>retRedTarget</name>
                     <direction>out</direction>
-                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                    <relatedStateVariable>ColorRedTarget</relatedStateVariable>
                 </argument>
                 <argument>
                     <name>retGreenTarget</name>
                     <direction>out</direction>
-                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                    <relatedStateVariable>ColorGreenTarget</relatedStateVariable>
                 </argument>
                 <argument>
                     <name>retBlueTarget</name>
                     <direction>out</direction>
-                    <relatedStateVariable>ColorChangeTarget</relatedStateVariable>
+                    <relatedStateVariable>ColorBlueTarget</relatedStateVariable>
                 </argument>
             </argumentList>
         </action>
+
+        <action>
+            <name>GetColorChangeStatus</name>
+            <argumentList>
+                <argument>
+                    <name>RedStatus</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>ColorRedStatus</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>GreenStatus</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>ColorGreenStatus</relatedStateVariable>
+                </argument>
+                <argument>
+                    <name>BlueStatus</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>ColorBlueStatus</relatedStateVariable>
+                </argument>
+            </argumentList>
+        </action>
+
     </actionList>
 
 
     <serviceStateTable>
         <stateVariable sendEvents="no">
-            <name>ColorChangeTarget</name>
+            <name>ColorRedTarget</name>
+            <dataType>ui1</dataType>
+            <defaultValue>0</defaultValue>
+            <allowedValueRange>
+                <minimum>0</minimum>
+                <maximum>255</maximum>
+            </allowedValueRange>
+        </stateVariable>
+        <stateVariable sendEvents="no">
+            <name>ColorGreenTarget</name>
+            <dataType>ui1</dataType>
+            <defaultValue>0</defaultValue>
+            <allowedValueRange>
+                <minimum>0</minimum>
+                <maximum>255</maximum>
+            </allowedValueRange>
+        </stateVariable>
+        <stateVariable sendEvents="no">
+            <name>ColorBlueTarget</name>
             <dataType>ui1</dataType>
             <defaultValue>0</defaultValue>
             <allowedValueRange>
