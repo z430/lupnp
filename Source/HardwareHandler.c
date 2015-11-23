@@ -46,7 +46,7 @@ void switchControl(bool setStatus) {
         softPwmWrite(pinGreen, greenDump);
         softPwmWrite(pinBlue, blueDump);
 
-        notifyStatusChange(switchStatus);
+//        notifyStatusChange(switchStatus);
     }
     else {
         softPwmWrite(pinRed, 0);
@@ -60,7 +60,7 @@ void dimmingControl(int _dimValue) {
     dimValue = mapRGB(_dimValue, 0, 255, 0, 100);
     if(switchStatus) {
         dimColorChange();
-        notifyLoadLevelChange(_dimValue);
+//        notifyLoadLevelChange(_dimValue);
     }
     else
         printf("Turn on Lamp First\n");
@@ -76,7 +76,7 @@ void colorControl(int redLevel, int greenLevel, int blueLevel) {
     if(switchStatus)
     {
       dimColorChange();
-        notifyColorChange(redLevel, greenLevel, blueLevel);
+//        notifyColorChange(redLevel, greenLevel, blueLevel);
     }
     else
       printf("Turn on Lamp First\n");

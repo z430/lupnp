@@ -14,15 +14,16 @@ int main(){
     g_print("Status %s.\n", switchStatus ? "on" : "off");
 
 //    hardwareSetup();
-    if (!initUPnP ()) {
-        return -2;
-    }
+//    if (!initUPnP ()) {
+//        return -2;
+//    }
 
+    upnpDump();
     GMainLoop *mainLoop;
     mainLoop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(mainLoop);
 
-    deinitUPnP();
+//    deinitUPnP();
 
     return 0;
 
