@@ -23,7 +23,7 @@ int main(){
     mainLoop = g_main_loop_new(NULL, FALSE);
     g_main_loop_run(mainLoop);
 
-//    deinitUPnP();
+    deinit_upnp();
 
     return 0;
 

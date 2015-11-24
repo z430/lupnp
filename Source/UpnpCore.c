@@ -64,6 +64,7 @@ void notify_color_change(gint red, gint green, gint blue){
         gupnp_service_notify(GUPNP_SERVICE(nl->switch_power), "ColorGreenStatus", G_TYPE_UINT, green, NULL);
         gupnp_service_notify(GUPNP_SERVICE(nl->switch_power), "ColorBlueStatus", G_TYPE_UINT, blue, NULL);
     }
+    g_print("notify color change\n");
 }
 
 void notify_load_level_change(gint load_level){
@@ -77,6 +78,7 @@ void notify_load_level_change(gint load_level){
         NetworkLight *nl =  (NetworkLight *)nl_node->data;
         gupnp_service_notify(GUPNP_SERVICE(nl->dimming), "LoadLevelStatus", G_TYPE_UINT, load_level, NULL);
     }
+    g_print("notify dimming change\n");
 }
 
 void notify_status_change(gint status){
@@ -90,6 +92,7 @@ void notify_status_change(gint status){
         NetworkLight *nl =  (NetworkLight *)nl_node->data;
         gupnp_service_notify(GUPNP_SERVICE(nl->switch_power), "Status", G_TYPE_UINT, status, NULL);
     }
+    g_print("notify status change\n");
 }
 
 static void on_notify_failed(GUPnPService *service, const GList *callback_urls, const GError *reason, gpointer user_data){
@@ -143,46 +146,23 @@ void on_set_color_target(GUPnPService *service, GUPnPServiceAction *action, gpoi
 }
 
 G_MODULE_EXPORT
-void on_query_red_color_status(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
+void on_query_color_status(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
     g_value_init(value, G_TYPE_UINT);
     g_value_set_uint(value, redLevelChange);
-    g_print("color red query status\n");
-}
-
-G_MODULE_EXPORT
-void on_query_green_color_status(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
-    g_value_init(value, G_TYPE_UINT);
     g_value_set_uint(value, greenLevelChange);
-    g_print("color green query status\n");
-}
-
-G_MODULE_EXPORT
-void on_query_blue_color_status(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
-    g_value_init(value, G_TYPE_UINT);
     g_value_set_uint(value, blueLevelChange);
-    g_print("color blue query status\n");
+    g_print("color query status\n");
 }
 
 G_MODULE_EXPORT
-void on_query_red_color_target(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
+void on_query_color_target(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
     g_value_init(value, G_TYPE_UINT);
     g_value_set_uint(value, redLevelChange);
-    g_print("color red query target\n");
-}
-
-G_MODULE_EXPORT
-void on_query_green_color_target(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
-    g_value_init(value, G_TYPE_UINT);
     g_value_set_uint(value, greenLevelChange);
-    g_print("color green query target\n");
+    g_value_set_uint(value, blueLevelChange);
+    g_print("color query target\n");
 }
 
-G_MODULE_EXPORT
-void on_query_blue_color_target(GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
-    g_value_init(value, G_TYPE_UINT);
-    g_value_set_uint(value, blueLevelChange);
-    g_print("color blue query target\n");
-}
 /*----------------------------------------END---------------------------------------------------------*/
 
 /* Dimming Service Module
@@ -228,34 +208,38 @@ void on_query_load_level_target(GUPnPService *service, const char *variable_name
 
 G_MODULE_EXPORT
 void on_get_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_get(action, "ResultStatus", G_TYPE_BOOLEAN, switchStatus, NULL);
+    gupnp_service_action_get(action, "ResultStatus", G_TYPE_BOOLEAN, target, NULL);
     gupnp_service_action_return(action);
 }
 
 G_MODULE_EXPORT
 void on_get_target(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_get(action, "RetTargetValue", G_TYPE_BOOLEAN, switchStatus, NULL);
+    gupnp_service_action_get(action, "RetTargetValue", G_TYPE_BOOLEAN, target, NULL);
     gupnp_service_action_return(action);
 }
 
 G_MODULE_EXPORT
 void on_set_target(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
-    gupnp_service_action_get(action, "newTargetValue", G_TYPE_BOOLEAN, &switchStatus, NULL);
-    switchControl(switchStatus);
-    g_print("status: %d\n", switchStatus);
+    gupnp_service_action_get(action, "newTargetValue", G_TYPE_BOOLEAN, &target, NULL);
+    switchControl(target);
+    g_print("status: %d\n", target);
+//    target = switchStatus;
+    gupnp_service_notify (service,  "Status", G_TYPE_BOOLEAN, target,NULL);
     gupnp_service_action_return(action);
 }
 
 G_MODULE_EXPORT
 void on_query_status (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
     g_value_init (value, G_TYPE_BOOLEAN);
-    g_value_set_boolean (value, switchStatus);
+    g_value_set_boolean (value, target);
+    g_print("query status\n");
 }
 
 G_MODULE_EXPORT
 void on_query_target (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
     g_value_init (value, G_TYPE_BOOLEAN);
-    g_value_set_boolean (value, switchStatus);
+    g_value_set_boolean (value, target);
+    g_print("query target\n");
 }
 
 /*----------------------------------------END---------------------------------------------------------*/
@@ -359,14 +343,18 @@ static gboolean init_server (GUPnPContext *context)
 
     color = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (dev), COLOR_SERVICE);
     if (color) {
-        gupnp_service_signals_autoconnect (GUPNP_SERVICE (color), NULL, &error);
+        g_signal_connect(color, "action-invoked::SetColorChangeTarget", G_CALLBACK(on_set_color_target), NULL);
+        g_signal_connect(color, "action-invoked::GetColorChangeTarget", G_CALLBACK(on_get_color_target), NULL);
+        g_signal_connect(color, "action-invoked::GetColorChangeStatus", G_CALLBACK(on_get_color_status), NULL);
+        g_signal_connect(color, "query-variable::ColorRedStatus", G_CALLBACK(on_query_color_target), NULL);
+        g_signal_connect(color, "query-variable::ColorGreenStatus", G_CALLBACK(on_query_color_target), NULL);
+        g_signal_connect(color, "query-variable::ColorBlueStatus", G_CALLBACK(on_query_color_target), NULL);
         g_signal_connect (color, "notify-failed", G_CALLBACK (on_notify_failed), NULL);
     }
 
     switch_power = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (dev), SWITCH_SERVICE);
     if (switch_power) {
-        gupnp_service_signals_autoconnect (GUPNP_SERVICE (switch_power), NULL,&error);
-        g_signal_connect (switch_power, "notify-failed", G_CALLBACK (on_notify_failed), NULL);
+      gupnp_service_signals_autoconnect (GUPNP_SERVICE (switch_power), NULL,&error);
     }
 
     dimming = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (dev), DIMMING_SERVICE);
@@ -375,57 +363,57 @@ static gboolean init_server (GUPnPContext *context)
         g_signal_connect (dimming, "notify-failed", G_CALLBACK (on_notify_failed), NULL);
     }
 
+//    color = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (dev), COLOR_SERVICE);
+//    switch_power = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (dev), SWITCH_SERVICE);
+//    dimming = gupnp_device_info_get_service (GUPNP_DEVICE_INFO (dev), DIMMING_SERVICE);
+
+    /* Control Handler */
+//    g_signal_connect(switch_power, "action-invoked::SetTarget", G_CALLBACK(on_set_target), NULL);
+//    g_signal_connect(switch_power, "action-invoked::GetTarget", G_CALLBACK(on_get_target), NULL);
+//    g_signal_connect(switch_power, "action-invoked::GetStatus", G_CALLBACK(on_get_status), NULL);
+//    g_signal_connect(dimming, "action-invoked::SetLoadLevelTarget", G_CALLBACK(on_set_load_level_target), NULL);
+//    g_signal_connect(color, "action-invoked::SetColorChangeTarget", G_CALLBACK(on_set_color_target), NULL);
+
+    /* Subscription Handler */
+//    g_signal_connect(switch_power, "query-variable::Status", G_CALLBACK(on_query_status), NULL);
+//    g_signal_connect(switch_power, "query-variable::Target", G_CALLBACK(on_query_target), NULL);
+//    g_signal_connect(dimming, "query-variable::LoadLevelStatus", G_CALLBACK(on_query_load_level_target), NULL);
+//    g_signal_connect(color, "query-variable::ColorRedStatus", G_CALLBACK(on_query_color_target), NULL);
+//    g_signal_connect(color, "query-variable::ColorGreenStatus", G_CALLBACK(on_query_color_target), NULL);
+//    g_signal_connect(color, "query-variable::ColorBlueStatus", G_CALLBACK(on_query_color_target), NULL);
+
     network_light = network_light_new (dev, switch_power, dimming, color);
     g_hash_table_insert (nl_hash, g_object_ref (context), network_light);
 
     /* Run */
     gupnp_root_device_set_available (dev, TRUE);
-
-    g_print ("Attaching to IP/Host %s on port %d\n",
-             gupnp_context_get_host_ip (context),
-             gupnp_context_get_port (context));
+    g_print ("Attaching to IP/Host %s on port %d\n", gupnp_context_get_host_ip (context), gupnp_context_get_port (context));
 
     return TRUE;
 }
 
 
-static gboolean
-init_client (GUPnPContext *context)
-{
+static gboolean init_client (GUPnPContext *context){
+
     GUPnPControlPoint *cp;
-
     cp = gupnp_control_point_new (context, NETWORK_LIGHT);
-
-    g_signal_connect (cp,
-                      "device-proxy-available",
-                      G_CALLBACK (on_network_light_available),
-                      NULL);
-
+    g_signal_connect (cp, "device-proxy-available", G_CALLBACK (on_network_light_available), NULL);
     gssdp_resource_browser_set_active (GSSDP_RESOURCE_BROWSER (cp), TRUE);
-
     /* Let context manager take care of the control point life cycle */
     gupnp_context_manager_manage_control_point (context_manager, cp);
-
     /* We don't need to keep our own references to the control points */
     g_object_unref (cp);
-
     return TRUE;
 }
 
-static void
-on_context_available (GUPnPContextManager *context_manager,
-                      GUPnPContext        *context,
-                      gpointer             user_data)
-{
+static void on_context_available (GUPnPContextManager *context_manager, GUPnPContext *context, gpointer user_data){
     /* Initialize client-side stuff */
-    init_client (context);
-
+//    init_client (context);
     /* Then the server-side stuff */
     init_server (context);
 }
 
-static void
-on_context_unavailable (GUPnPContextManager *context_manager,
+static void on_context_unavailable (GUPnPContextManager *context_manager,
                         GUPnPContext        *context,
                         gpointer             user_data)
 {
@@ -436,44 +424,31 @@ on_context_unavailable (GUPnPContextManager *context_manager,
     g_hash_table_remove (nl_hash, context);
 }
 
-static gboolean
-context_equal (GUPnPContext *context1, GUPnPContext *context2)
-{
+static gboolean context_equal (GUPnPContext *context1, GUPnPContext *context2){
     return g_ascii_strcasecmp (gupnp_context_get_host_ip (context1),
                                gupnp_context_get_host_ip (context2)) == 0;
 }
 
-gboolean
-init_upnp (void)
-{
+gboolean init_upnp (void) {
     GError *error = NULL;
 
     switch_proxies = NULL;
     dimming_proxies = NULL;
     color_proxies = NULL;
 
-    nl_hash = g_hash_table_new_full (g_direct_hash,
-                                     (GEqualFunc) context_equal,
-                                     g_object_unref,
+    nl_hash = g_hash_table_new_full (g_direct_hash, (GEqualFunc) context_equal, g_object_unref,
                                      (GDestroyNotify) network_light_free);
 
     context_manager = gupnp_context_manager_new (NULL, 0);
     g_assert (context_manager != NULL);
 
-    g_signal_connect (context_manager,
-                      "context-available",
-                      G_CALLBACK (on_context_available),
-                      NULL);
-    g_signal_connect (context_manager,
-                      "context-unavailable",
-                      G_CALLBACK (on_context_unavailable),
-                      NULL);
+    g_signal_connect (context_manager, "context-available", G_CALLBACK (on_context_available), NULL);
+    g_signal_connect (context_manager, "context-unavailable", G_CALLBACK (on_context_unavailable), NULL);
 
     return TRUE;
 }
 
-void
-deinit_upnp (void)
+void deinit_upnp (void)
 {
     g_object_unref (context_manager);
 
@@ -487,3 +462,5 @@ deinit_upnp (void)
     g_object_unref (doc);
 
 }
+
+
