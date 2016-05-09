@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+  <specVersion>
+    <major>1</major>
+	<minor>0</minor>
+  </specVersion>
+  <actionList>
+    <action>
+      <name>GetHumStatus</name>
+      <argumentList>
+        <argument>
+          <name>LM</name>
+          <relatedStateVariable>StatusLM</relatedStateVariable>
+          <direction>out</direction>
+        </argument>
+      </argumentList>
+    </action>
+  </actionList>
+  <serviceStateTable>
+    <stateVariable sendEvents="yes">
+      <name>StatusLM</name>
+      <dataType>int</dataType>
+      <defaultValue>0</defaultValue>
+	  <allowedValueRange>
+		<minimum>0</minimum>
+		<maximum>200</maximum>
+	  </allowedValueRange>
+    </stateVariable>
+  </serviceStateTable>
+</scpd>

@@ -15,7 +15,7 @@ int main(){
 
 
     //hardwareSetup();
-    readSensor();
+    //readSensor();
     if (!init_upnp ()) {
         return -2;
     }

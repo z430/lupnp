@@ -11,12 +11,17 @@
 #define DIMMING_SERVICE "urn:schemas-upnp-org:service:Dimming:1"
 #define COLOR_SERVICE "urn:schemas-upnp-org:service:ColorChange:1"
 #define NETWORK_LIGHT "urn:schemas-upnp-org:device:BinaryLight:1"
+#define PIR_SERVICE "urn:schemas-upnp-org:service:SensorPir:1"
+#define HUM_SERVICE "urn:schemas-upnp-org:service:SensorLm:1"
 
 typedef struct {
     GUPnPRootDevice *dev;
     GUPnPServiceInfo *color;
     GUPnPServiceInfo *dimming;
     GUPnPServiceInfo *switch_power;
+    GUPnPServiceInfo *pir;
+    GUPnPServiceInfo *hum;
+
 }NetworkLight;
 
 static GUPnPContextManager *context_manager;
@@ -25,19 +30,23 @@ static GHashTable *nl_hash;
 static GList *switch_proxies;
 static GList *dimming_proxies;
 static GList *color_proxies;
+static GList *pir_proxies;
+static GList *hum_proxies;
 
 static GUPnPXMLDoc *doc;
 static char *desc_location;
 static char uuid[37];
 
-static NetworkLight *network_light_new(GUPnPRootDevice *dev, GUPnPServiceInfo *color,
-                                       GUPnPServiceInfo *dimming, GUPnPServiceInfo *switch_power){
+static NetworkLight *network_light_new(GUPnPRootDevice *dev, GUPnPServiceInfo *color, GUPnPServiceInfo *dimming,
+                                       GUPnPServiceInfo *switch_power, GUPnPServiceInfo *pir, GUPnPServiceInfo *hum){
     NetworkLight *network_light;
     network_light = g_slice_new(NetworkLight);
     network_light->dev = dev;
     network_light->color = color;
     network_light->dimming = dimming;
     network_light->switch_power = switch_power;
+    network_light->pir = pir;
+    network_light->hum = hum;
 
     return  network_light;
 }
@@ -47,8 +56,38 @@ static void network_light_free(NetworkLight *network_light){
     g_object_unref(network_light->color);
     g_object_unref(network_light->dimming);
     g_object_unref(network_light->switch_power);
+    g_object_unref(network_light->pir);
+    g_object_unref(network_light->hum);
 
     g_slice_free(NetworkLight, network_light);
+}
+
+void notify_pir_status_change(gint pir_status){
+    GList *network_lights;
+    GList *nl_node;
+
+    network_lights = g_hash_table_get_values(nl_hash);
+    for(nl_node = network_lights;
+        nl_node != NULL;
+        nl_node = nl_node->next){
+        NetworkLight *nl =  (NetworkLight *)nl_node->data;
+        gupnp_service_notify(GUPNP_SERVICE(nl->pir), "StatusPIR", G_TYPE_UINT, pir_status, NULL);
+    }
+    g_print("notify pir change\n");
+}
+
+void notify_hum_status_change(gint hum_status){
+    GList *network_lights;
+    GList *nl_node;
+
+    network_lights = g_hash_table_get_values(nl_hash);
+    for(nl_node = network_lights;
+        nl_node != NULL;
+        nl_node = nl_node->next){
+        NetworkLight *nl =  (NetworkLight *)nl_node->data;
+        gupnp_service_notify(GUPNP_SERVICE(nl->hum), "StatusLM", G_TYPE_UINT, hum_status, NULL);
+    }
+    g_print("notify status change\n");
 }
 
 void notify_color_change(gint red, gint green, gint blue){
@@ -244,6 +283,60 @@ void on_query_target (GUPnPService *service, const char *variable_name, GValue *
 
 /*----------------------------------------END---------------------------------------------------------*/
 
+
+/* Pir Service Module
+ * */
+
+G_MODULE_EXPORT
+void on_get_pir_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+    readSensor();
+    gupnp_service_action_set(action, "PIR", G_TYPE_UINT, pirValue, NULL);
+    gupnp_service_action_return(action);
+}
+
+G_MODULE_EXPORT
+void on_query_pir_status (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
+    g_value_init (value, G_TYPE_UINT);
+    g_value_set_boolean (value, pirValue);
+    g_print("query status\n");
+}
+
+G_MODULE_EXPORT
+void on_query_pir_target (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
+    g_value_init (value, G_TYPE_UINT);
+    g_value_set_boolean (value, pirValue);
+    g_print("query target\n");
+}
+
+/*----------------------------------------END---------------------------------------------------------*/
+
+/* Hum Service Module
+ * */
+
+G_MODULE_EXPORT
+void on_get_hum_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+    readSensor();
+    gupnp_service_action_set(action, "LM", G_TYPE_UINT, dhtValue, NULL);
+    gupnp_service_action_return(action);
+}
+
+G_MODULE_EXPORT
+void on_query_hum_status (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
+    g_value_init (value, G_TYPE_UINT);
+    g_value_set_boolean (value, dhtValue);
+    g_print("query status\n");
+}
+
+G_MODULE_EXPORT
+void on_query_hum_target (GUPnPService *service, const char *variable_name, GValue *value, gpointer user_data){
+    g_value_init (value, G_TYPE_UINT);
+    g_value_set_boolean (value, dhtValue);
+    g_print("query target\n");
+}
+
+/*----------------------------------------END---------------------------------------------------------*/
+
+
 void on_service_proxy_action_ret(GUPnPServiceProxy *proxy, GUPnPServiceProxyAction *action, gpointer user_data){
     GError *error = NULL;
     gupnp_service_proxy_end_action(proxy, action, &error, NULL);
@@ -272,8 +365,7 @@ void set_all_color_status(gint red, gint green, gint blue){
     }
 }
 
-void set_all_load_level (gint load_level)
-{
+void set_all_load_level (gint load_level){
     GList *proxy_node;
 
     for (proxy_node = dimming_proxies; proxy_node; proxy_node = g_list_next (proxy_node)) {
@@ -328,13 +420,14 @@ static void on_network_light_available(GUPnPControlPoint *cp, GUPnPDeviceProxy *
 }
 
 
-static gboolean init_server (GUPnPContext *context)
-{
+static gboolean init_server (GUPnPContext *context){
     NetworkLight *network_light;
     GUPnPRootDevice *dev;
     GUPnPServiceInfo *switch_power;
     GUPnPServiceInfo *dimming;
     GUPnPServiceInfo *color;
+    GUPnPServiceInfo *pir;
+    GUPnPServiceInfo *hum;
     GError *error = NULL;
 
     /* Create root device */
@@ -363,7 +456,19 @@ static gboolean init_server (GUPnPContext *context)
         g_signal_connect (dimming, "notify-failed", G_CALLBACK (on_notify_failed), NULL);
     }
 
-    network_light = network_light_new (dev, switch_power, dimming, color);
+    pir = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), PIR_SERVICE);
+    if(pir){
+        gupnp_service_signals_autoconnect (GUPNP_SERVICE (pir), NULL, &error);
+        g_signal_connect (pir, "notify-failed", G_CALLBACK (on_notify_failed), NULL);
+    }
+
+    hum = gupnp_device_info_get_service(GUPNP_DEVICE_INFO(dev), HUM_SERVICE);
+    if(hum){
+        gupnp_service_signals_autoconnect (GUPNP_SERVICE (hum), NULL, &error);
+        g_signal_connect (hum, "notify-failed", G_CALLBACK (on_notify_failed), NULL);
+    }
+
+    network_light = network_light_new (dev, switch_power, dimming, color, pir, hum);
     g_hash_table_insert (nl_hash, g_object_ref (context), network_light);
 
     /* Run */
@@ -396,8 +501,7 @@ static void on_context_available (GUPnPContextManager *context_manager, GUPnPCon
 
 static void on_context_unavailable (GUPnPContextManager *context_manager,
                         GUPnPContext        *context,
-                        gpointer             user_data)
-{
+                        gpointer             user_data){
     g_print ("Dettaching from IP/Host %s and port %d\n",
              gupnp_context_get_host_ip (context),
              gupnp_context_get_port (context));
@@ -429,8 +533,7 @@ gboolean init_upnp (void) {
     return TRUE;
 }
 
-void deinit_upnp (void)
-{
+void deinit_upnp (void){
     g_object_unref (context_manager);
 
     g_hash_table_unref (nl_hash);

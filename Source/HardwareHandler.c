@@ -24,6 +24,8 @@ void readSensor(){
     char * line = NULL;
     size_t len = 0;
     ssize_t read;
+    int index = 0;
+    int sensor[3];
 
     fp = fopen("Resource/SensorData.txt", "r");
     if (fp == NULL)
@@ -32,7 +34,14 @@ void readSensor(){
     while ((read = getline(&line, &len, fp)) != -1) {
         printf("Retrieved line of length %zu :\n", read);
         printf("%s", line);
+        sensor[index] = atoi(line);
+//        printf("%d", sensor[index]);
+        index++;
     }
+    dhtValue = sensor[0];
+    pirValue = sensor[1];
+
+    printf("%d %d\n", dhtValue, pirValue);
 }
 
 void hardwareSetup() {

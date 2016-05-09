@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <actionList>
+    <action>
+      <name>GetPirStatus</name>
+      <argumentList>
+        <argument>
+          <name>PIR</name>
+          <relatedStateVariable>StatusPIR</relatedStateVariable>
+          <direction>out</direction>
+        </argument>
+      </argumentList>
+    </action>
+  </actionList>
+  <serviceStateTable>
+    <stateVariable sendEvents="yes">
+      <name>StatusPIR</name>
+      <dataType>ui1</dataType>
+      <defaultValue>0</defaultValue>
+      <allowedValueRange>
+        <minimum>0</minimum>
+        <maximum>1</maximum>
+      </allowedValueRange>
+    </stateVariable>
+  </serviceStateTable>
+</scpd>

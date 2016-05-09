@@ -9,6 +9,8 @@
 #include <stdbool.h>
 
 bool switchStatus;
+int dhtValue;
+int pirValue;
 
 void readSensor();
 void hardwareSetup();

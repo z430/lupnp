@@ -34,6 +34,20 @@
         <controlURL>Resource/ColorChange/Control</controlURL>
         <eventSubURL>Resource/ColorChange/Event</eventSubURL>
       </service>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:SensorLm:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:SensorLm:1</serviceId>
+        <SCPDURL>Resource/SensorLm1.xml</SCPDURL>
+        <controlURL>Resource/SensorLm/Control</controlURL>
+        <eventSubURL>Resource/SensorLm/Event</eventSubURL>
+      </service>
+      <service>
+        <serviceType>urn:schemas-upnp-org:service:SensorPir:1</serviceType>
+        <serviceId>urn:upnp-org:serviceId:SensorPir:1</serviceId>
+        <SCPDURL>Resource/SensorPir1.xml</SCPDURL>
+        <controlURL>Resource/SensorPir/Control</controlURL>
+        <eventSubURL>Resource/SensorPir/Event</eventSubURL>
+      </service>
     </serviceList>
   </device>
 </root>
