@@ -7,6 +7,7 @@
 #include <wiringPi.h>
 #include <stdio.h>
 #include <softPwm.h>
+#include <Python.h>
 
 const int pinRed = 6;
 const int pinBlue = 4;

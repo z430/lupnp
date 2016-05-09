@@ -6,7 +6,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(SOURCE_FILES Source/main.c)
 add_executable(lupnp ${SOURCE_FILES} Header/UpnpCore.h Source/UpnpCore.c Header/HardwareHandler.h Source/HardwareHandler.c)
 
+find_package(PythonLibs REQUIRED)
 
+include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories("/usr/local/include/gupnp-1.0")
 include_directories("/usr/include/glib-2.0")
 #include_directories("/usr/lib/arm-linux-gnueabihf/glib-2.0/include")
@@ -20,4 +22,4 @@ include_directories("/usr/local/include")
 link_directories("usr/local/lib")
 
 target_link_libraries(lupnp libgmodule-2.0.so libgssdp-1.0.so libsoup-2.4.so libgobject-2.0.so
-                        libglib-2.0.so libxml2.so libuuid.a libgupnp-1.0.so libwiringPi.so)
+                        libglib-2.0.so libxml2.so libuuid.a libgupnp-1.0.so libwiringPi.so ${PYTHON_LIBRARIES})
