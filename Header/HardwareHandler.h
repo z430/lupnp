@@ -10,6 +10,7 @@
 
 bool switchStatus;
 
+void readSensor();
 void hardwareSetup();
 void switchControl(bool setStatus);
 void dimmingControl(int dimValue);
