@@ -8,7 +8,7 @@
 dht DHT;
 XBee xbee = XBee();
 
-uint8_t payload[8] = {0,0,0,0,0,0,0,0};
+uint8_t payload[] = {0,0};
 
 // SH + SL Address of receiving XBee
 XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); //send to coordinator
@@ -25,7 +25,7 @@ union u_tag {
 } u;
 
 void setup() {
-	pirCallibration();
+	//pirCallibration();
 	Serial.begin(9600);
 	xbee.setSerial(Serial);
 }
@@ -36,6 +36,14 @@ void loop() {
 	hum = humCheck();
 	pir = pirCheck();
 
+	payload[0] = hum;
+	payload[1] = pir;
+/*	
+	Serial.print(payload[0]);
+	Serial.print(" ");
+	Serial.println(payload[1]);
+
+
 	u.fval = hum;
 	for (int i = 0; i < 4; i++){
 		payload[i] = u.b[1];
@@ -45,19 +53,23 @@ void loop() {
 	for (int i = 0; i < 4; i++){
 		payload[i+4] = u.b[i];
 	}
-	
+	*/
 	xbee.send(zbTx);
-	delay(10);
+	delay(100);
 
 
 }
 
 int humCheck(){
+	int chk = DHT.read11(DHT11_PIN);
 	return DHT.humidity;
 }
 
 int pirCheck(){
-	return digitalRead(PIR_PIN);
+
+	return random(0, 12);
+
+	//return digitalRead(PIR_PIN);
 }
 
 void pirCallibration(){
