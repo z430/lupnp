@@ -289,6 +289,7 @@ void on_query_target (GUPnPService *service, const char *variable_name, GValue *
 
 G_MODULE_EXPORT
 void on_get_pir_status(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+    system("python Source/Receiver.py");
     readSensor();
     gupnp_service_action_set(action, "PIR", G_TYPE_UINT, pirValue, NULL);
     gupnp_service_action_return(action);

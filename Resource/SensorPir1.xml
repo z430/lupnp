@@ -23,7 +23,7 @@
       <defaultValue>0</defaultValue>
       <allowedValueRange>
         <minimum>0</minimum>
-        <maximum>1</maximum>
+        <maximum>12</maximum>
       </allowedValueRange>
     </stateVariable>
   </serviceStateTable>
