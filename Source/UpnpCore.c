@@ -37,6 +37,8 @@ static GUPnPXMLDoc *doc;
 static char *desc_location;
 static char uuid[37];
 
+clock_t begin, end;
+
 static NetworkLight *network_light_new(GUPnPRootDevice *dev, GUPnPServiceInfo *color, GUPnPServiceInfo *dimming,
                                        GUPnPServiceInfo *switch_power, GUPnPServiceInfo *pir, GUPnPServiceInfo *hum){
     NetworkLight *network_light;
@@ -259,12 +261,19 @@ void on_get_target(GUPnPService *service, GUPnPServiceAction *action, gpointer u
 
 G_MODULE_EXPORT
 void on_set_target(GUPnPService *service, GUPnPServiceAction *action, gpointer user_data){
+
+    double timeSpent;
+    begin = clock();
+
     gupnp_service_action_get(action, "newTargetValue", G_TYPE_BOOLEAN, &target, NULL);
     switchControl(target);
     g_print("status: %d\n", target);
 //    target = switchStatus;
     gupnp_service_notify (service,  "Status", G_TYPE_BOOLEAN, target,NULL);
     gupnp_service_action_return(action);
+    end = clock();
+    timeSpent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("time spent: %f\n", timeSpent);
 }
 
 G_MODULE_EXPORT
